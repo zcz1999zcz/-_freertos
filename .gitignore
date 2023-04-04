@@ -66,6 +66,11 @@ doc/*.txt
 # 忽略所有的 .pdf 文件 在 doc/ directory 下的
 doc/**/*.pdf
 
+Output/*.crf
+Output/*.htm
+Output/*.dep
+Output/*.axf
+
 例如stm32的keil工程代码
 
 需要忽略的文件有OBJ文件夹和USER目录下的DebugConfig目录，各种.uvguix  .ini .scvd .administartot 
