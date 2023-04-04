@@ -248,7 +248,7 @@ static void Alarm_Task(void* parameter)
   	if(value1<14)
     {
 //      BEEP(BEEP_ON);		
-			LED_RED;
+			RELAY_ON;
 			LCD_ClearLine(LINE(15));
 			ILI9341_DispStringLine_EN_CH(LINE(15),"     电压过低，请及时处理！");
 		}
@@ -256,14 +256,13 @@ static void Alarm_Task(void* parameter)
 		if(value1>=16)
     {
 //			BEEP(BEEP_ON);
-			LED_RED;
+			RELAY_OFF;
       LCD_ClearLine(LINE(15));			
 			ILI9341_DispStringLine_EN_CH(LINE(15),"     电压过高，请及时处理！");
 		}
 
     vTaskDelay(500);   /* 延时500个tick */
 //		BEEP(BEEP_OFF);
-		LED_GREEN;
 		LCD_ClearLine(LINE(15));	
 		ILI9341_DispStringLine_EN_CH(LINE(15),"           电压值正常");
   }
@@ -301,33 +300,11 @@ static void KEY_Task(void* parameter)
 
 static void ADC_Task(void* parameter)
 {	
-	int t;
   while (1)
   {
-		
-    A[t]=(ADC_ConvertedValue * 825) >> 10;
-		
-		++t;
-		
-		if(t==100)
-		{
-			int i;
-			u32 sum1=0;
-			u32 sum2=0;
-			for(i=0;i<100;i++)
-			{
-				sum1+=(A[i]-1630)*(A[i]-1630);
-				sum2=(sqrt(sum1));			
-			}
-			ADC_ConvertedValueLocal=sum2;
-			value=ADC_ConvertedValueLocal;
-			value=value/100;
-			
-			xQueueSend( Test_Queue, /* 消息队列的句柄 */
-                  &value,/* 发送的消息内容 */
-                            0 );        /* 等待时间 0 */
-			t=0;
-		}
+    ADC_ConvertedValueLocal =(float) ADC_ConvertedValue/4096*3.3;
+		printf("\r\n The current AD value = 0x%04X \r\n", ADC_ConvertedValue); 
+		printf("\r\n The current AD value = %f V \r\n",ADC_ConvertedValueLocal); 
     vTaskDelay(1);   /* 延时500个tick */
   }
 }
