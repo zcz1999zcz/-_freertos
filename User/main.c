@@ -87,7 +87,7 @@ extern  SD_CardInfo SDCardInfo;
 static void AppTaskCreate(void);/* 用于创建任务 */
 
 static void Test_Task(void* pvParameters);/* Test_Task任务实现 */
-static void Alarm_Task(void* pvParameters);/* KEY_Task任务实现 */
+static void RELAY_Task(void* pvParameters);/* KEY_Task任务实现 */
 static void KEY_Task(void* pvParameters);/* KEY_Task任务实现 */
 static void BSP_Init(void);/* 用于初始化板载相关资源 */
 static void LCD_config(void);
@@ -152,7 +152,7 @@ static void AppTaskCreate(void)
                         (TaskHandle_t*  )&Test_Task_Handle);/* 任务控制块指针 */
 
 	  /* 创建Test_Task任务 */
-   xTaskCreate((TaskFunction_t )Alarm_Task, /* 任务入口函数 */
+   xTaskCreate((TaskFunction_t )RELAY_Task, /* 任务入口函数 */
                         (const char*    )"Alarm_Task",/* 任务名字 */
                         (uint16_t       )512,   /* 任务栈大小 */
                         (void*          )NULL,	/* 任务入口函数参数 */
@@ -241,10 +241,11 @@ static void Test_Task(void* parameter)
 
 		
 }
-static void Alarm_Task(void* parameter)
+static void RELAY_Task(void* parameter)
 {	
   while (1)
   {
+		vTaskSuspend(KEY_Task_Handle);/* 挂起 */
   	if(value1<14)
     {
 //      BEEP(BEEP_ON);		
