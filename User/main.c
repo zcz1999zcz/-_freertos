@@ -63,7 +63,7 @@ FATFS fs;													/* FatFs文件系统对象 */
 FRESULT res_sd;                /* 文件操作结果 */
 static char dispBuff[50];	
 static char Buff[50];	
-uint32_t ADC_ConvertedValueLocal; 
+float ADC_ConvertedValueLocal = 0; 
 uint16_t A[400];
 float value;
 float value1;
@@ -303,7 +303,11 @@ static void ADC_Task(void* parameter)
 {	
   while (1)
   {
+		ADC_ConvertedValue = ADC_GetConversionValue(ADC1);
     ADC_ConvertedValueLocal =(float) ADC_ConvertedValue/4096*3.3;
+		xQueueSend( Test_Queue, /* 消息队列的句柄 */
+                  &ADC_ConvertedValueLocal,/* 发送的消息内容 */
+                            0 );        /* 等待时间 0 */
 		printf("\r\n The current AD value = 0x%04X \r\n", ADC_ConvertedValue); 
 		printf("\r\n The current AD value = %f V \r\n",ADC_ConvertedValueLocal); 
     vTaskDelay(1);   /* 延时500个tick */
