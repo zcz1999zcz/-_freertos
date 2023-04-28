@@ -29,11 +29,10 @@
 #include "bsp_usart.h"
 #include "bsp_key.h"
 #include "./adc/bsp_adc.h"
+
 #include "./lcd/bsp_ili9341_lcd.h"
 #include "./flash/bsp_spi_flash.h"
-#include "./beep/bsp_beep.h" 
-#include "./FatFs_Test/FatFs_test.h"
-#include "math.h"
+
 /**************************** 任务句柄 ********************************/
 /* 
  * 任务句柄是一个指针，用于指向一个任务，当任务创建好之后，它就具有了一个任务句柄
@@ -42,10 +41,8 @@
  */
 static TaskHandle_t AppTaskCreate_Handle = NULL;/* 创建任务句柄 */
 static TaskHandle_t Test_Task_Handle = NULL;/* LED任务句柄 */
-static TaskHandle_t Alarm_Task_Handle = NULL;/* KEY任务句柄 */
 static TaskHandle_t KEY_Task_Handle = NULL;/* KEY任务句柄 */
-static TaskHandle_t ADC_Task_Handle = NULL;/* KEY任务句柄 */
-static TaskHandle_t Time_Task_Handle = NULL;/* KEY任务句柄 */
+
 /********************************** 内核对象句柄 *********************************/
 /*
  * 信号量，消息队列，事件标志组，软件定时器这些都属于内核的对象，要想使用这些内核
@@ -57,28 +54,17 @@ static TaskHandle_t Time_Task_Handle = NULL;/* KEY任务句柄 */
  * 来完成的
  * 
  */
-FIL fnew;													/* 文件对象 */
-UINT fnum;            					  /* 文件成功读写数量 */
-FATFS fs;													/* FatFs文件系统对象 */
-FRESULT res_sd;                /* 文件操作结果 */
-static char dispBuff[50];	
-static char Buff[50];	
-float ADC_ConvertedValueLocal = 0; 
-uint16_t A[400];
-float value;
-float value1;
-static char Time[20];	
-int h=0,m=0,s=0;
+
+
 
 /******************************* 全局变量声明 ************************************/
 /*
  * 当我们在写应用程序的时候，可能需要用到一些全局变量。
  */
 extern uint32_t ADC_ConvertedValue;
-extern  SD_CardInfo SDCardInfo;
 
-#define  QUEUE_LEN    1   /* 队列的长度，最大可包含多少个消息 */
-#define  QUEUE_SIZE   4   /* 队列中每个消息大小（字节） */
+
+
 /*
 *************************************************************************
 *                             函数声明
@@ -87,13 +73,10 @@ extern  SD_CardInfo SDCardInfo;
 static void AppTaskCreate(void);/* 用于创建任务 */
 
 static void Test_Task(void* pvParameters);/* Test_Task任务实现 */
-static void RELAY_Task(void* pvParameters);/* KEY_Task任务实现 */
 static void KEY_Task(void* pvParameters);/* KEY_Task任务实现 */
+ void LCD_config(void);
 static void BSP_Init(void);/* 用于初始化板载相关资源 */
-static void LCD_config(void);
-static void ADC_Task(void* pvParameters);
-static void Time_Task(void* pvParameters);/* KEY_Task任务实现 */
-QueueHandle_t Test_Queue =NULL;
+
 /*****************************************************************
   * @brief  主函数
   * @param  无
@@ -109,6 +92,10 @@ int main(void)
   /* 开发板硬件初始化 */
   BSP_Init();
   
+  printf("这是一个[野火]-STM32全系列开发板-FreeRTOS-固件库实验 \n\n");
+  printf("按下KEY1挂起任务，按下KEY2恢复任务\n");
+	
+	LCD_config();
   
    /* 创建AppTaskCreate任务 */
   xReturn = xTaskCreate((TaskFunction_t )AppTaskCreate,  /* 任务入口函数 */
@@ -135,54 +122,28 @@ int main(void)
   **********************************************************************/
 static void AppTaskCreate(void)
 {
-
+  BaseType_t xReturn = pdPASS;/* 定义一个创建信息返回值，默认为pdPASS */
   
   taskENTER_CRITICAL();           //进入临界区
-	
-	  /* 创建Test_Queue */
-  Test_Queue = xQueueCreate((UBaseType_t ) QUEUE_LEN,/* 消息队列的长度 */
-                            (UBaseType_t ) QUEUE_SIZE);/* 消息的大小 */
     
   /* 创建Test_Task任务 */
-   xTaskCreate((TaskFunction_t )Test_Task, /* 任务入口函数 */
+  xReturn = xTaskCreate((TaskFunction_t )Test_Task, /* 任务入口函数 */
                         (const char*    )"Test_Task",/* 任务名字 */
                         (uint16_t       )512,   /* 任务栈大小 */
                         (void*          )NULL,	/* 任务入口函数参数 */
-                        (UBaseType_t    )3,	    /* 任务的优先级 */
-                        (TaskHandle_t*  )&Test_Task_Handle);/* 任务控制块指针 */
-
-	  /* 创建Test_Task任务 */
-   xTaskCreate((TaskFunction_t )RELAY_Task, /* 任务入口函数 */
-                        (const char*    )"Alarm_Task",/* 任务名字 */
-                        (uint16_t       )512,   /* 任务栈大小 */
-                        (void*          )NULL,	/* 任务入口函数参数 */
                         (UBaseType_t    )2,	    /* 任务的优先级 */
-                        (TaskHandle_t*  )&Alarm_Task_Handle);/* 任务控制块指针 */
-
-												
+                        (TaskHandle_t*  )&Test_Task_Handle);/* 任务控制块指针 */
+  if(pdPASS == xReturn)
+    printf("创建Test_Task任务成功!\r\n");
   /* 创建KEY_Task任务 */
-  xTaskCreate((TaskFunction_t )KEY_Task,  /* 任务入口函数 */
+  xReturn = xTaskCreate((TaskFunction_t )KEY_Task,  /* 任务入口函数 */
                         (const char*    )"KEY_Task",/* 任务名字 */
                         (uint16_t       )512,  /* 任务栈大小 */
                         (void*          )NULL,/* 任务入口函数参数 */
-                        (UBaseType_t    )5, /* 任务的优先级 */
+                        (UBaseType_t    )3, /* 任务的优先级 */
                         (TaskHandle_t*  )&KEY_Task_Handle);/* 任务控制块指针 */ 
-
-
-  xTaskCreate((TaskFunction_t )ADC_Task,  /* 任务入口函数 */
-                        (const char*    )"ADC_Task",/* 任务名字 */
-                        (uint16_t       )512,  /* 任务栈大小 */
-                        (void*          )NULL,/* 任务入口函数参数 */
-                        (UBaseType_t    )7, /* 任务的优先级 */
-                        (TaskHandle_t*  )&ADC_Task_Handle);/* 任务控制块指针 */ 
-												
-		  /* 创建Test_Task任务 */
-   xTaskCreate((TaskFunction_t )Time_Task, /* 任务入口函数 */
-                        (const char*    )"Time_Task",/* 任务名字 */
-                        (uint16_t       )512,   /* 任务栈大小 */
-                        (void*          )NULL,	/* 任务入口函数参数 */
-                        (UBaseType_t    )6,	    /* 任务的优先级 */
-                        (TaskHandle_t*  )&Time_Task_Handle);/* 任务控制块指针 */
+  if(pdPASS == xReturn)
+    printf("创建KEY_Task任务成功!\r\n");
   
   vTaskDelete(AppTaskCreate_Handle); //删除AppTaskCreate任务
   
@@ -200,78 +161,24 @@ static void AppTaskCreate(void)
 static void Test_Task(void* parameter)
 {	
   
-//  // 局部变量，用于保存转换计算后的电压值 	 
-//  uint32_t ADC_ConvertedValueLocal; 	
+  // 局部变量，用于保存转换计算后的电压值 	 
+  uint32_t ADC_ConvertedValueLocal; 
 
-  LCD_config();           	//lcd屏幕初始化//
-  f_mount(&fs,"0:",1);	    //文件系统挂起-SD、、
-
+  // ADC 初始化
+	ADCx_Init();
+	
   while (1)
   {
-		//消息队列接收函数
-    xQueueReceive( Test_Queue,    /* 消息队列的句柄 */
-                             &value1,      /* 发送的消息内容 */
-                             portMAX_DELAY); /* 等待时间 一直等 */
-//    ADC_ConvertedValueLocal =(ADC_ConvertedValue * 825) >> 10; 
+    ADC_ConvertedValueLocal =(ADC_ConvertedValue * 825) >> 10; 
 
-    printf("%.2f   ",value1); 
-    printf("%dh%dm%ds\r\n",h,m,s);  //时间参数
-
-		sprintf(dispBuff,"            %.2f V",value1);    //数据类型转换
-	
-		sprintf(Buff,"\r\n%.2f    ",value1);
-		
-		sprintf(Time,"            %dh%dm%ds",h,m,s);
-		
-		LCD_ClearLine(LINE(7));      //lcd清屏，第七行
-  	ILI9341_DispStringLine_EN_CH(LINE(7),dispBuff);	  //显示第七行
-		LCD_ClearLine(LINE(9));
-		ILI9341_DispStringLine_EN_CH(LINE(9),"            开机时长");
-		LCD_ClearLine(LINE(10));
-		ILI9341_DispStringLine_EN_CH(LINE(10),Time);	
-	
-		res_sd=f_open(&fnew, "0:k.txt",FA_OPEN_ALWAYS | FA_WRITE);	//
-	  f_lseek (&fnew, f_size(&fnew));				
- 		f_write(&fnew,Buff,sizeof(Buff),&fnum);
-		f_write(&fnew,Time,sizeof(Time),&fnum);
-		f_close(&fnew);                                                //文件操作-SD
-		
-    vTaskDelay(500);   /* 延时500个tick */       
+    printf("\r\n The current AD value = 0x%04X \r\n", 
+           ADC_ConvertedValue); 
+    printf("\r\n The current AD value = %d mV \r\n",
+              ADC_ConvertedValueLocal); 	
+  
+    vTaskDelay(1000);   /* 延时500个tick */
   }
-
-		
 }
-static void RELAY_Task(void* parameter)
-{	
-  while (1)
-  {
-		vTaskSuspend(KEY_Task_Handle);/* 挂起 */
-  	if(value1<14)
-    {
-//      BEEP(BEEP_ON);		
-			RELAY_ON;
-			LCD_ClearLine(LINE(15));
-			ILI9341_DispStringLine_EN_CH(LINE(15),"     电压过低，请及时处理！");
-		}
-
-		if(value1>=16)
-    {
-//			BEEP(BEEP_ON);
-			RELAY_OFF;
-      LCD_ClearLine(LINE(15));			
-			ILI9341_DispStringLine_EN_CH(LINE(15),"     电压过高，请及时处理！");
-		}
-
-    vTaskDelay(500);   /* 延时500个tick */
-//		BEEP(BEEP_OFF);
-		LCD_ClearLine(LINE(15));	
-		ILI9341_DispStringLine_EN_CH(LINE(15),"           电压值正常");
-  }
-
-		
-}
-		
-
 
 /**********************************************************************
   * @ 函数名  ： Test_Task
@@ -286,54 +193,18 @@ static void KEY_Task(void* parameter)
     if( Key_Scan(KEY1_GPIO_PORT,KEY1_GPIO_PIN) == KEY_ON )
     {/* K1 被按下 */
       printf("挂起LED任务！\n");
-      vTaskSuspend(Alarm_Task_Handle);/* 挂起 */
+      vTaskSuspend(Test_Task_Handle);/* 挂起LED任务 */
       printf("挂起LED任务成功！\n");
     } 
     if( Key_Scan(KEY2_GPIO_PORT,KEY2_GPIO_PIN) == KEY_ON )
     {/* K2 被按下 */
       printf("恢复LED任务！\n");
-      vTaskResume(Alarm_Task_Handle);/* 恢复 */
+      vTaskResume(Test_Task_Handle);/* 恢复LED任务！ */
       printf("恢复LED任务成功！\n");
     }
-    vTaskDelay(50);/* 延时20个tick */
+    vTaskDelay(20);/* 延时20个tick */
   }
 }
-
-static void ADC_Task(void* parameter)
-{	
-  while (1)
-  {
-		ADC_ConvertedValue = ADC_GetConversionValue(ADC1);
-    ADC_ConvertedValueLocal =(float) ADC_ConvertedValue/4096*3.3;
-		xQueueSend( Test_Queue, /* 消息队列的句柄 */
-                  &ADC_ConvertedValueLocal,/* 发送的消息内容 */
-                            0 );        /* 等待时间 0 */
-		printf("\r\n The current AD value = 0x%04X \r\n", ADC_ConvertedValue); 
-		printf("\r\n The current AD value = %f V \r\n",ADC_ConvertedValueLocal); 
-    vTaskDelay(1);   /* 延时500个tick */
-  }
-}
-static void Time_Task(void* parameter)    //软件定时器
-{	
-
-  while (1)
-  {
-		
-		vTaskDelay(1000);
-		s++;
-
-		if(s==60)
-		{
-			m++;
-			s=0;
-		}	
-		if(m==60)
-		{
-			h++;
-			m=0;
-		}
-		}
-  }
 
 /***********************************************************************
   * @ 函数名  ： BSP_Init
@@ -349,12 +220,9 @@ static void BSP_Init(void)
 	 * 都统一用这个优先级分组，千万不要再分组，切忌。
 	 */
 	NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
-	
- 	ILI9341_Init();  
-		
 	/* LED 初始化 */
 	LED_GPIO_Config();
-	
+  
 	/* 串口初始化	*/
 	USART_Config();
   
@@ -363,27 +231,32 @@ static void BSP_Init(void)
   
 	// ADC 初始化
 	ADCx_Init();
-	
-	//蜂鸣器初始化
-	BEEP_GPIO_Config();
-
+  ILI9341_Init();
+	printf("\r\n ----这是一个ADC单通道DMA读取实验----\r\n");
 	
 }
 
-
-/*用于测试各种液晶的函数*/
-void LCD_config(void)
+  void LCD_config(void)
 {
 
 	ILI9341_GramScan ( 6 );	
 	LCD_SetFont(&Font8x16);
 	LCD_SetColors(WHITE,BLACK);
   ILI9341_Clear(0,0,LCD_X_LENGTH,LCD_Y_LENGTH);	/* 清屏，显示全黑 */
-	ILI9341_DispStringLine_EN_CH(LINE(3),"          湖北师范大学");
-  ILI9341_DispStringLine_EN_CH(LINE(6),"           电压有效值");
+//	ILI9341_DispStringLine_EN_CH(LINE(3),"          湖北师范大学");
+//  ILI9341_DispStringLine_EN_CH(LINE(6),"           电压有效值");
+	  ILI9341_DispStringLine_EN(LINE(0),"BH 3.2 inch LCD para:");
+  ILI9341_DispStringLine_EN(LINE(1),"Image resolution:240x320 px");
 
 
 }
+
+	
+
+  
+  
+  
+
 
 
 

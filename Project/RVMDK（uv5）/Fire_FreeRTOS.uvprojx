@@ -177,7 +177,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -369,7 +369,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\led;..\..\FreeRTOS\include;..\..\FreeRTOS\port\RVDS\ARM_CM3;..\..\User\key;..\..\User\uart;..\..\User\FATFS;..\..\User\adc;..\..\User\beep;..\..\User\flash;..\..\User\font</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\led;..\..\FreeRTOS\include;..\..\FreeRTOS\port\RVDS\ARM_CM3;..\..\User\key;..\..\User\uart</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -613,49 +613,9 @@
               <FilePath>..\..\User\key\bsp_key.c</FilePath>
             </File>
             <File>
-              <FileName>bsp_sdio_sdcard.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\sdio\bsp_sdio_sdcard.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\adc\bsp_adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_beep.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\beep\bsp_beep.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_spi_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\flash\bsp_spi_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>fonts.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\font\fonts.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_ili9341_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\lcd\bsp_ili9341_lcd.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Fatfs</GroupName>
-          <Files>
-            <File>
-              <FileName>diskio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\FATFS\diskio.c</FilePath>
-            </File>
-            <File>
-              <FileName>ff.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\FATFS\ff.c</FilePath>
             </File>
           </Files>
         </Group>

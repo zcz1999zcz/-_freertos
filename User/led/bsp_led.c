@@ -40,14 +40,12 @@ void LED_GPIO_Config(void)
 
 		/*调用库函数，初始化GPIO*/
 		GPIO_Init(LED1_GPIO_PORT, &GPIO_InitStructure);	
-	
 		
 		/*选择要控制的GPIO引脚*/
 		GPIO_InitStructure.GPIO_Pin = LED2_GPIO_PIN;
 
 		/*调用库函数，初始化GPIO*/
 		GPIO_Init(LED2_GPIO_PORT, &GPIO_InitStructure);
-		
 		
 		/*选择要控制的GPIO引脚*/
 		GPIO_InitStructure.GPIO_Pin = LED3_GPIO_PIN;

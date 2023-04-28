@@ -105,8 +105,8 @@ static void ADCx_Mode_Config(void)
 	// 配置ADC时钟为PCLK2的8分频，即9MHz
 	RCC_ADCCLKConfig(RCC_PCLK2_Div8); 
 	
-	// 配置 ADC 通道转换顺序为1，第一个转换，采样时间为个时钟周期
-	ADC_RegularChannelConfig(ADCx, ADC_CHANNEL, 1, ADC_SampleTime_239Cycles5);
+	// 配置 ADC 通道转换顺序为1，第一个转换，采样时间为55.5个时钟周期
+	ADC_RegularChannelConfig(ADCx, ADC_CHANNEL, 1, ADC_SampleTime_55Cycles5);
 	
 	// 使能ADC DMA 请求
 	ADC_DMACmd(ADCx, ENABLE);

@@ -56,9 +56,9 @@ ARM Macro Assembler    Page 1
    32 00000000         ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
    33 00000000         ; </h>
    34 00000000         
-   35 00000000 00000200 
+   35 00000000 00000400 
                        Stack_Size
-                               EQU              0x00000200
+                               EQU              0x00000400
    36 00000000         
    37 00000000                 AREA             STACK, NOINIT, READWRITE, ALIGN
 =3
@@ -70,17 +70,17 @@ ARM Macro Assembler    Page 2
 
 
                                SPACE            Stack_Size
-   39 00000200         __initial_sp
-   40 00000200         
-   41 00000200         ; <h> Heap Configuration
-   42 00000200         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-   43 00000200         ; </h>
-   44 00000200         
-   45 00000200 00000200 
+   39 00000400         __initial_sp
+   40 00000400         
+   41 00000400         ; <h> Heap Configuration
+   42 00000400         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
+   43 00000400         ; </h>
+   44 00000400         
+   45 00000400 00000200 
                        Heap_Size
                                EQU              0x00000200
-   46 00000200         
-   47 00000200                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
+   46 00000400         
+   47 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
    48 00000000         __heap_base
    49 00000000         Heap_Mem
@@ -553,11 +553,13 @@ ARM Macro Assembler    Page 9
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=..\..\output\startup_stm32f10x_hd.d -o..\..\output\startup_stm32f1
-0x_hd.o -IC:\Users\Administrator\Desktop\-_freertos\Project\RVMDK£®uv5£©\RTE -I
-C:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.4.0\Device\Include -IC:\Keil_v5\ARM\CM
-SIS\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA
- 515" --predefine="STM32F10X_HD SETA 1" --list=..\..\listing\startup_stm32f10x_
-hd.lst ..\..\Libraries\CMSIS\startup\startup_stm32f10x_hd.s
+0x_hd.o -IC:\Users\Administrator\Desktop\A≈Ã£®◊ ¡œ≈Ã£©\1-≥Ã–Ú‘¥¬Î_ΩÃ≥ÃŒƒµµ\3-[“
+∞ª]°∂FreeRTOSƒ⁄∫À µœ÷”Î”¶”√ø™∑¢ µ’Ω÷∏ƒœ°∑\1- ÈºÆ≈‰Ã◊≥Ã–Ú\3-‘ˆ÷µ≥Ã–Ú£∫FreeRTOS+
+ª˘¥°Õ‚…Ë\14-FreeRTOS-ADC-DMA≤…ºØ\Project\RVMDK£®uv5£©\RTE -IC:\Keil_v5\ARM\PACK
+\Keil\STM32F1xx_DFP\2.4.0\Device\Include -IC:\Keil_v5\ARM\CMSIS\Include --prede
+fine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 515" --predefine="
+STM32F10X_HD SETA 1" --list=..\..\listing\startup_stm32f10x_hd.lst ..\..\Librar
+ies\CMSIS\startup\startup_stm32f10x_hd.s
 
 
 
@@ -580,7 +582,7 @@ Symbol: Stack_Mem
    Uses
       None
 Comment: Stack_Mem unused
-__initial_sp 00000200
+__initial_sp 00000400
 
 Symbol: __initial_sp
    Definitions
@@ -1389,7 +1391,7 @@ Symbol: Heap_Size
    Uses
       At line 49 in file ..\..\Libraries\CMSIS\startup\startup_stm32f10x_hd.s
 Comment: Heap_Size used once
-Stack_Size 00000200
+Stack_Size 00000400
 
 Symbol: Stack_Size
    Definitions

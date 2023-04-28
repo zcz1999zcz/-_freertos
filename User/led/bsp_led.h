@@ -9,7 +9,7 @@
 // R-红色
 #define LED1_GPIO_PORT    	GPIOB			              /* GPIO端口 */
 #define LED1_GPIO_CLK 	    RCC_APB2Periph_GPIOB		/* GPIO端口时钟 */
-#define LED1_GPIO_PIN		GPIO_Pin_5			        /* 连接到SCL时钟线的GPIO改钟睿引脚 */
+#define LED1_GPIO_PIN		GPIO_Pin_5			        /* 连接到SCL时钟线的GPIO */
 
 // G-绿色
 #define LED2_GPIO_PORT    	GPIOB			              /* GPIO端口 */
@@ -67,11 +67,17 @@
 
 /* 基本混色，后面高级用法使用PWM可混出全彩颜色,且效果更好 */
 
-//继电器开改钟睿引脚 
-#define RELAY_ON  digitalLo(LED1_GPIO_PORT,LED1_GPIO_PIN)
+//红
+#define LED_RED  \
+					LED1_ON;\
+					LED2_OFF\
+					LED3_OFF
 
-//继电器关
-#define RELAY_OFF	digitalHi(LED1_GPIO_PORT,LED1_GPIO_PIN)
+//绿
+#define LED_GREEN		\
+					LED1_OFF;\
+					LED2_ON\
+					LED3_OFF
 
 //蓝
 #define LED_BLUE	\

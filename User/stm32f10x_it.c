@@ -25,9 +25,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
-#include "./sdio/bsp_sdio_sdcard.h"	
-#include "FreeRTOS.h"					//FreeRTOS使用		  
+
+
+//FreeRTOS使用		 
+#include "FreeRTOS.h"					 
 #include "task.h" 
+
 
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
@@ -151,26 +154,7 @@ void SysTick_Handler(void)
     #endif  /* INCLUDE_xTaskGetSchedulerState */
 }
 
-/*
- * 函数名：SDIO_IRQHandler
- * 描述  ：在SDIO_ITConfig(）这个函数开启了sdio中断	，
- *		     数据传输结束时产生中断
- * 输入  ：无		 
- * 输出  ：无
- */
-void SDIO_IRQHandler(void) 
-{
-  uint32_t ulReturn;
-  
-  /* 进入临界段，临界段可以嵌套 */
-  ulReturn = taskENTER_CRITICAL_FROM_ISR();
-  
-  /* Process All SDIO Interrupt Sources */
-  SD_ProcessIRQSrc();
-  
-  /* 退出临界段 */
-  taskEXIT_CRITICAL_FROM_ISR( ulReturn );
-}
+
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
